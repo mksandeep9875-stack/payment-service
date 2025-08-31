@@ -21,18 +21,14 @@ public class MainRestController {
     PaymentRepository paymentRepository;
 
     @GetMapping("get/{orderid}")
-    public ResponseEntity<?> getPayment(@PathVariable("orderid") String orderid)
-    {
+    public ResponseEntity<?> getPayment(@PathVariable("orderid") String orderid) {
         Payment payment;
 
-        if(paymentRepository.findByOrderId(orderid).isPresent())
-        {
-            payment =  paymentRepository.findByOrderId(orderid).get();
+        if (paymentRepository.findByOrderId(orderid).isPresent()) {
+            payment = paymentRepository.findByOrderId(orderid).get();
             log.info("Payment found: {}", payment);
             return ResponseEntity.ok(payment);
-        }
-        else
-        {
+        } else {
             log.info("Payment not found for orderid: {}", orderid);
             return ResponseEntity.ok().body(null);
         }
@@ -43,17 +39,14 @@ public class MainRestController {
     public ResponseEntity<?> createPayment(@RequestBody PaymentRequest paymentRequest,
                                            @RequestHeader("Authorization") String token) throws InterruptedException {
 
-        if(authService.validateToken(token))
-        {
+        if (authService.validateToken(token, paymentRequest.getCustomerPhone())) {
             log.info("Token is valid: {}", token);
             log.info("Received request to create payment: {}", paymentRequest);
             Thread.sleep(20000); // simulating delay in response from payment service
             Payment payment = savePaymentDetailsWithPendingStatus(paymentRequest);
             log.info("Payment created successfully: {}", payment);
             return ResponseEntity.ok(payment.getPaymentId());
-        }
-        else
-        {
+        } else {
             log.info("Token is invalid: {}", token);
             return ResponseEntity.badRequest().body("Invalid token");
         }
@@ -67,12 +60,11 @@ public class MainRestController {
         payment.setAmount(paymentRequest.getAmount());
         payment.setCurrency(paymentRequest.getCurrency());
         payment.setPaymentMethod(paymentRequest.getPaymentMethod());
-        payment.setStatus("PENDING");
+        payment.setStatus("COMPLETED");
+        payment.setPaymentMethod("CARD PAYMENT");
         payment.setCreatedAt(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
         return payment;
     }
-
-
 }

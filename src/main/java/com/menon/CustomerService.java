@@ -15,7 +15,7 @@ public class CustomerService {
     @Qualifier("auth-service-validate")
     WebClient webClient;
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, String customerPhone) {
 
         log.info("Validating token within the AuthService: {}", token);
         log.info("Sending request to auth service to validate token: {}", token);
@@ -25,6 +25,6 @@ public class CustomerService {
                 .bodyToMono(Principal.class)
                 .block(); // Current Thread will pause till the final response comes back
         log.info("Response from auth service: {}", authResponse);
-        return authResponse.getState().equalsIgnoreCase("valid");
+        return authResponse.getUsername().equalsIgnoreCase(customerPhone) && authResponse.getState().equalsIgnoreCase("valid");
     }
 }

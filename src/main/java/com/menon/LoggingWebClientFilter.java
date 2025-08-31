@@ -20,7 +20,7 @@ public class LoggingWebClientFilter implements ExchangeFilterFunction {
 
     private void logRequestHeaders(ClientRequest request) {
         request.headers().forEach((name, values) -> {
-            log.info("Outgoing Request Header: "+name + ": " + values);
+            log.info("Outgoing Request Header: " + name + ": " + values);
         });
     }
 }
